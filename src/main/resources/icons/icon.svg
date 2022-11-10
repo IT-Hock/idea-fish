@@ -1,0 +1,8 @@
+<!--
+  - Copyright (c) 2021 - 2022 IT-Hock. All rights reserved
+  -->
+
+<svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" viewBox="0 0 2048 2048">
+	<rect fill-opacity="0.6" x="0" y="0" width="2048" height="2048" rx="896" ry="896" fill="#40b6e0"></rect>
+	<g transform="scale(0.76)"><path fill-opacity="0.7" transform="translate(655.36, 2149.92) rotate(180) scale(-1, 1)" fill="#231f20" d="M233 1493h879v-170h-676v-400h613v-170h-613v-753h-203v1493z"></path></g>
+</svg>

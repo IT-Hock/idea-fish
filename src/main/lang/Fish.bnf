@@ -1,0 +1,76 @@
+/*
+ * Copyright (c) 2021 - 2022 IT-Hock. All rights reserved
+ */
+{
+  parserClass="de.ithock.idea.fishlang.parser.FishParser"
+  parserUtilClass="de.ithock.idea.fishlang.FishParserUtil"
+
+  extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
+
+  psiClassPrefix="Fish"
+  psiImplClassSuffix="Impl"
+  psiPackage="de.ithock.idea.fishlang.psi"
+  psiImplPackage="de.ithock.idea.fishlang.psi.impl"
+
+  elementTypeHolderClass="de.ithock.idea.fishlang.psi.FishTypes"
+  elementTypeClass="de.ithock.idea.fishlang.psi.FishElementType"
+  tokenTypeClass="de.ithock.idea.fishlang.psi.FishTokenType"
+
+  psiImplUtilClass="de.ithock.idea.fishlang.psi.impl.FishPsiImplUtil"
+  name = "FishLexer"
+}
+
+fishFile ::= item_*
+
+private item_ ::= (property|COMMENT|CRLF)
+
+property ::= (KEY? SEPARATOR VALUE?) | KEY {
+  pin=3
+  recoverWhile="recover_property"
+  mixin="de.ithock.idea.fishlang.psi.impl.FishNamedElementImpl"
+  implements="de.ithock.idea.fishlang.psi.FishNamedElement"
+  methods=[getKey getValue getName setName getNameIdentifier getPresentation]
+}
+
+{
+ tokens = [
+    // This list does not contain all tokens. This list only defines the debug
+    // names for tokens which have a distinct text representation. Other tokens
+    // are implicitly declared through their usage.
+    IF = 'if'
+    ELSE = 'else'
+    ELSEIF = 'elseif'
+    END = 'end'
+    ELLIPSIS = '...'
+    IN = 'in'
+    NOT = 'not'
+    ECHO = 'echo'
+    FOR = 'for'
+    WHILE = 'while'
+    SWITCH = 'switch'
+    CASE = 'case'
+    DEFAULT = 'default'
+    BREAK = 'break'
+    CONTINUE = 'continue'
+    RETURN = 'return'
+    FUNCTION = 'function'
+    EXIT = 'exit'
+    TRUE = 'true'
+    FALSE = 'false'
+    SOURCE = 'source'
+    ASSIGN = '='
+    COLON = ':'
+    SEMI = ';'
+    COMMA = ','
+    AT = '@'
+    LPAREN = '('
+    RPAREN = ')'
+    LCURLY = '{'
+    RCURLY = '}'
+    LBRAC = '['
+    RBRAC = ']'
+    DOLLAR = '$'
+  ]
+}
+
+private recover_property ::= !(KEY|SEPARATOR|COMMENT)
