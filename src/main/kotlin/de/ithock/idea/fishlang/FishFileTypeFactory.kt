@@ -14,6 +14,6 @@ import com.intellij.openapi.fileTypes.FileTypeFactory
  */
 class FishFileTypeFactory : FileTypeFactory() {
     override fun createFileTypes(fileTypeConsumer: FileTypeConsumer) {
-        fileTypeConsumer.consume(FishFileType.Companion.INSTANCE)
+        fileTypeConsumer.consume(FishFileType.INSTANCE)
     }
 }

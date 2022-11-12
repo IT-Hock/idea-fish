@@ -3,6 +3,7 @@
  */
 package de.ithock.idea.fishlang
 
+import com.intellij.json.JsonElementTypes
 import com.intellij.lang.ASTNode
 import com.intellij.lang.Language
 import com.intellij.lang.ParserDefinition
@@ -12,28 +13,44 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.FileViewProvider
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
-import com.intellij.psi.TokenType
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.tree.IFileElementType
 import com.intellij.psi.tree.TokenSet
 import de.ithock.idea.fishlang.parser.FishParser
-import de.ithock.idea.fishlang.parser._FishLexer
-import de.ithock.idea.fishlang.psi.FishFile
+import de.ithock.idea.fishlang.psi.FishElementTypes
+import de.ithock.idea.fishlang.psi.FishFileImpl
 import de.ithock.idea.fishlang.psi.FishTokenType
-import de.ithock.idea.fishlang.psi.FishTypeUtil
-import de.ithock.idea.fishlang.psi.FishTypes
 
 class FishParserDefinition : ParserDefinition {
-    val WHITE_SPACES = TokenSet.create(TokenType.WHITE_SPACE)
-    val COMMENTS = TokenSet.create(
-            FishTypes.SCOMMENT
-    )
+    val WHITE_SPACES = TokenSet.WHITE_SPACE
     val STRING_LITERALS = TokenSet.create(
-            FishTypes.STD_STRING,
-            FishTypes.IND_STRING
+            FishElementTypes.SINGLE_QUOTED_STRING,
+            FishElementTypes.DOUBLE_QUOTED_STRING
     )
-
+    val COMMENTS = TokenSet.create(FishElementTypes.LINE_COMMENT)
     val FILE = IFileElementType(Language.findInstance(FishLanguage::class.java))
+    val BOOLEANS = TokenSet.create(
+            FishElementTypes.TRUE,
+            FishElementTypes.FALSE
+    )
+    val KEYWORDS = TokenSet.create(
+            FishElementTypes.TRUE,
+            FishElementTypes.FALSE,
+            FishElementTypes.IF,
+            FishElementTypes.ELSE,
+            FishElementTypes.ELSEIF,
+            FishElementTypes.IN,
+            FishElementTypes.FOR,
+            FishElementTypes.RETURN,
+            FishElementTypes.CONTINUE,
+            FishElementTypes.BREAK,
+    )
+    val FISH_LITERALS = TokenSet.create(
+            FishElementTypes.STRING_LITERAL,
+            FishElementTypes.NUMBER_LITERAL,
+            FishElementTypes.TRUE,
+            FishElementTypes.FALSE
+    )
 
     override fun createLexer(project: Project?): Lexer {
         return FishLexerAdapter()
@@ -60,34 +77,21 @@ class FishParserDefinition : ParserDefinition {
     }
 
     override fun createFile(viewProvider: FileViewProvider): PsiFile {
-        return FishFile(viewProvider)
+        return FishFileImpl(viewProvider)
     }
 
     override fun spaceExistenceTypeBetweenTokens(
             left: ASTNode,
             right: ASTNode
     ): ParserDefinition.SpaceRequirements {
-        val leftType: FishTokenType? = asFishTokenType(left.elementType)
-        val rightType: FishTokenType? = asFishTokenType(right.elementType)
-        if (leftType === FishTypes.SCOMMENT) {
-            return ParserDefinition.SpaceRequirements.MUST_LINE_BREAK
-        }
-        return if (leftType === FishTypes.DOLLAR && rightType === FishTypes.LCURLY) {
-            ParserDefinition.SpaceRequirements.MUST_NOT
-        } else if (FishTypeUtil.MIGHT_COLLAPSE_WITH_ID.contains(leftType) &&
-                FishTypeUtil.MIGHT_COLLAPSE_WITH_ID.contains(rightType)
-        ) {
-            ParserDefinition.SpaceRequirements.MUST
-        } else {
-            ParserDefinition.SpaceRequirements.MAY
-        }
+        return ParserDefinition.SpaceRequirements.MAY
     }
 
     override fun createElement(node: ASTNode?): PsiElement {
-        return FishTypes.Factory.createElement(node)
+        return FishElementTypes.Factory.createElement(node)
     }
 
     private fun asFishTokenType(elementType: IElementType): FishTokenType? {
-        return if (elementType is FishTokenType) elementType as FishTokenType else null
+        return if (elementType is FishTokenType) elementType else null
     }
 }

@@ -9,7 +9,7 @@ import com.intellij.psi.FileViewProvider
 import de.ithock.idea.fishlang.FishFileType
 import de.ithock.idea.fishlang.FishLanguage
 
-class FishFile(viewProvider: FileViewProvider) : PsiFileBase(
+class FishFileImpl(viewProvider: FileViewProvider) : PsiFileBase(
         viewProvider,
         FishLanguage.INSTANCE
 ) {

@@ -12,218 +12,105 @@
   psiPackage="de.ithock.idea.fishlang.psi"
   psiImplPackage="de.ithock.idea.fishlang.psi.impl"
 
-  elementTypeHolderClass="de.ithock.idea.fishlang.psi.FishTypes"
+  elementTypeHolderClass="de.ithock.idea.fishlang.psi.FishElementTypes"
   elementTypeClass="de.ithock.idea.fishlang.psi.FishElementType"
   tokenTypeClass="de.ithock.idea.fishlang.psi.FishTokenType"
 
   name = "FishLexer"
 
-  // do not record error reporting information in recover rules and missing_semi
-  consumeTokenMethod(".*_recover|missing_semi")="consumeTokenFast"
-  // do not record error reporting information in expression parsing,
-  // no one really needs to know that + - * / are expected at any offset
-  consumeTokenMethod("expr_op.*")="consumeTokenFast"
-
  tokens = [
-    // This list does not contain all tokens. This list only defines the debug
-    // names for tokens which have a distinct text representation. Other tokens
-    // are implicitly declared through their usage.
-    BEGIN = 'begin'
-    IF = 'if'
-    ELSE = 'else'
-    END = 'end'
-    FOR = 'for'
-    FUNCTION = 'function'
-    IN = 'in'
-    OR_KW = 'or'
-    ELLIPSIS = '...'
-    RETURN = 'return'
-    SWITCH = 'switch'
-    WHILE = 'while'
-    CASE = 'case'
-    CONTINUE = 'continue'
-    BREAK = 'break'
-    EXIT = 'exit'
-    SOURCE = 'source'
-    ECHO = 'echo'
+    LINE_COMMENT = "regexp:#(.*)"
+    REAL_NUMBER = "regexp:[0-9]+\.[0-9]+"
+    // Regexp integer blacklist dot
+    INTEGER_NUMBER = "regexp:[0-9]+"
 
-    LT = '-lt'
-    GT = '-gt'
-    LE = '-le'
-    GE = '-ge'
-    EQ = '-eq'
+    FUNCTION = "function"
+    END = "end"
+    ECHO = "echo"
+    ELSEIF = "else if"
+    IF = "if"
+    ELSE = "else"
+    FOR = "for"
+    IN = "in"
+    WHILE = "while"
+    SWITCH = "switch"
+    CASE = "case"
+    BREAK = "break"
+    CONTINUE = "continue"
+    RETURN = "return"
+    TRUE = "true"
+    FALSE = "false"
 
-    ASSIGN = '='
-    COLON = ':'
-    SEMI = ';'
-    COMMA = ','
-    AT = '@'
-    LPAREN = '('
-    RPAREN = ')'
-    LCURLY = '{'
-    RCURLY = '}'
-    LBRAC = '['
-    RBRAC = ']'
-    DOLLAR = '$'
+    AND = "&&"
+    OR = "||"
+    NOT = "!"
+    EQ = "=="
+    NEQ = "!="
+    GT = ">"
+    LT = "<"
+    GTE = ">="
+    LTE = "<="
 
-    DOT = '.'
-    HAS = '?'
-    NOT = 'not'
-    TIMES = '*'
-    DIVIDE = '/'
-    PLUS = '+'
-    MINUS = '-'
-    //LT = '<'
-    GT = '>'
-    CONCAT = '++'
-    UPDATE = '//'
-    LEQ = '<='
-    GEQ = '>='
-    EQ = '=='
-    NEQ = '!='
-    AND = 'and'
-    OR = '||'
+    SET = "set"
+    ABBR = "abbr"
 
-    TRUE = 'true'
-    FALSE = 'false'
-
-    SCOMMENT = 'SCOMMENT'
-    LINE_BREAK = 'regexp:\\n|\\r\\n|\\r|\\n\\r'
-
-    ENV_VARIABLE = 'regexp:\$[a-zA-Z_][a-zA-Z0-9_]*'
-    ABBR = 'abbr'
-    SET = 'set'
-
-    //ANY="regexp:[^]"
-    ID="regexp:[a-zA-Z_][a-zA-Z0-9_'-]*"
-    INT="regexp:[0-9]+"
-    FLOAT="regexp:(([1-9][0-9]*\.[0-9]*)|(0?\.[0-9]+))([Ee][+-]?[0-9]+)?"
-    PATH="regexp:[a-zA-Z0-9._+-]*(/[a-zA-Z0-9._+-]+)+/?"
-    HPATH="regexp:~(/[a-zA-Z0-9._+-]+)+/?"
-    SPATH="regexp:<[a-zA-Z0-9._+-]+(/[a-zA-Z0-9._+-]+)*>"
-    URI="regexp:[a-zA-Z][a-zA-Z0-9.+-]*:[a-zA-Z0-9%/?:@&=+$,\-_.!~*']+"
-
-    WHITE_SPACE="regexp:[ \t\r\n]+"
-    SCOMMENT="regexp:#[^\r\n]*"
-    MCOMMENT="regexp:/\*([^*]|\*[^/])*\*/"
-
-    SINGLE_QUOTED_STRING="regexp:'([^'\\\\]|\\\\.)*'"
-    DOUBLE_QUOTED_STRING="regexp:\"([^\"\\\\]|\\\\.)*\""
+    ENV_IDENTIFIER = "regexp:\$[a-zA-Z_]([a-zA-Z0-9_]|\[[0-9]+])*"
+    IDENTIFIER = "regexp:[a-zA-Z0-9_\-\\/]*"
+    SINGLE_QUOTED_STRING = "regexp:'[^']*'"
+    DOUBLE_QUOTED_STRING = "regexp:\"[^\"]*\""
+    //WHITE_SPACE = "regexp:\s+"
+    EOL = "\\n, \\r\\n"
   ]
 }
 
-FishFile ::= expr*
+FishShell ::= item_*
 
-;{ extends("expr_.*")=expr }
-expr ::= <<expr0>>
-//expr ::= <<parseNonBindValue expr0>>
-private expr0 ::= expr_if
-  | expr_for
-  | expr_function
-  | expr_switch
-  | expr_while
-  | expr_return
-  | expr_op
-  | end
-  | expr_set
-  | expr_abbr
-  | expr_echo
+private item_ ::= (statement_line_comment|VariableDeclaration|NumberLiteral|env_variable|statements|statement_execute|"regexp:\n") {
+    pin = 1
+}
 
-expr_function ::= FUNCTION (expr_cmd|expr) { pin=1 }
+statement_line_comment ::= LINE_COMMENT
+env_variable ::= ENV_IDENTIFIER
 
-expr_cmd ::= ID ('-'ID ID+)*
-expr_echo ::= ECHO DOUBLE_QUOTED_STRING { pin=1 }
-cmdOpts ::= ('-'ID)*
-expr_abbr ::= ABBR cmdOpts? expr { pin=1 }
-expr_set ::= SET expr
-expr_for ::= FOR expr_simple IN expr0 { pin=1 }
-//expr_if ::= IF expr elseif else end { pin=1 }
-expr_if ::= IF 'regexp:(.*?)$' expr elseif else end {pin=1}
-expr_switch ::= SWITCH expr { pin=1 }
-expr_while ::= WHILE expr { pin=1 }
-private end ::= END { pin=1 }
+private statements ::= (statement_if|statement_for|statment_echo|function_definition|command)
 
+statement_for ::= FOR IDENTIFIER IN IDENTIFIER statements END
 
-;{ extends("expr_op_.*")=expr_op }
-expr_return ::= RETURN expr { pin=1 }
+statement_if ::= IF command statements (statement_elseif)* (statement_else)? END
+statement_elseif ::= ELSEIF command statements
+statement_else ::= ELSE item_*
+condition ::= Expression (AND|OR|EQ|NEQ|LT|GT|LE|GE) Expression
 
-// Note that the rules for expr_op.* use a special processing mode of
-// Grammar-Kit. Left recursion would not be possible otherwise.
-// https://github.com/JetBrains/Grammar-Kit/blob/master/HOWTO.md#24-compact-expression-parsing-with-priorities
-// https://intellij-support.jetbrains.com/hc/en-us/community/posts/360001258300-What-s-the-alternative-to-left-recursion-in-GrammarKit-#community_comment_360000201199
-;{ extends("expr_op_.*")=expr_op }
-expr_op ::= expr_op_or
-  | expr_op_lt
-  | expr_op_and
-  | group_eq
-  | group_cmp
-  | expr_op_update
-  | expr_op_not
-  | group_add
-  | group_mul
-  | expr_op_concat
-  | expr_op_neg
-  | expr_op_base
-private group_eq ::= expr_op_eq | expr_op_ne
-private group_cmp ::= expr_op_lt | expr_op_le | expr_op_gt | expr_op_ge
-private group_add ::= expr_op_plus | expr_op_minus
-private group_mul ::= expr_op_mul | expr_op_div
+function_definition ::= FUNCTION (command|IDENTIFIER) statements END
 
-expr_op_lt ::= LT expr_simple
-expr_op_or ::= expr_op OR expr_op
-expr_op_and ::= expr_op AND expr_op
-expr_op_eq ::= (expr_op EQ expr_op)
-expr_op_ne ::= expr_op NEQ expr_op
-//expr_op_lt ::= expr_op LT expr_op
-expr_op_le ::= expr_op LEQ expr_op
-expr_op_gt ::= expr_op GT expr_op
-expr_op_ge ::= expr_op GEQ expr_op
-expr_op_update ::= expr_op UPDATE expr_op { rightAssociative=true }
-expr_op_not ::= NOT expr_op
-expr_op_plus ::= expr_op PLUS expr_op
-expr_op_minus ::= expr_op ' ' MINUS ' ' expr_op
-expr_op_mul ::= expr_op TIMES expr_op
-expr_op_div ::= expr_op DIVIDE expr_op
-expr_op_concat ::= expr_op CONCAT expr_op { rightAssociative=true }
-expr_op_neg ::= MINUS expr_op
-expr_op_base ::= expr_app
+command_arg ::= (('-'|'--') (IDENTIFIER|(IDENTIFIER ' ' IDENTIFIER)|
+                SINGLE_QUOTED_STRING|DOUBLE_QUOTED_STRING | INTEGER_NUMBER | REAL_NUMBER | env_variable))|IDENTIFIER
 
-// Grammar-Kit cannot handle "expr_app ::= expr_app expr_select_or_legacy" or
-// equivalent rules. As a workaround, we use this rule which will only create
-// one AST node for a series of function calls.
-expr_app ::= expr_simple (expr_simple)*
+set_command ::= SET (command_arg)
+statment_echo ::= ECHO ' '? (SINGLE_QUOTED_STRING|DOUBLE_QUOTED_STRING)
+command ::= set_command|((ABBR|IDENTIFIER) (command_arg|IDENTIFIER)*) endOfExpression
 
-;{ extends("identifier|literal|string|parens|set|list")=expr_simple }
-expr_simple ::=
-    identifier
-  | literal
-  | string
-  | parens
-  | set
-  | list
-  | '-'ID ID*
-identifier ::= ID
-literal ::= INT | FLOAT | PATH | HPATH | SPATH | URI | TRUE | FALSE
-parens ::= LPAREN expr|ENV_VARIABLE recover_parens RPAREN { pin=1 }
-set ::= [ REC ] LCURLY recover_set (bind recover_set)* RCURLY { pin=2 }
-list ::= LBRAC recover_list (expr_select recover_list)* RBRAC { pin=1 }
-private recover_parens ::= { recoverWhile=paren_recover }
-private recover_set ::= { recoverWhile=set_recover }
-private recover_list ::= { recoverWhile=list_recover }
-private set_recover ::= curly_recover !bind
-private list_recover ::= brac_recover !expr_select
+statement_execute ::= IDENTIFIER CRLF
 
-;{ extends(".*_string")="string" }
-string ::= std_string | ind_string
-std_string ::= STRING_OPEN string_part* STRING_CLOSE { pin=1 }
-ind_string ::= IND_STRING_OPEN string_part* IND_STRING_CLOSE { pin=1 }
-;{ extends("string_text|antiquotation")=string_part }
-string_part ::= string_text | antiquotation { recoverWhile=string_part_recover }
-string_text ::= STR | IND_STR
-antiquotation ::= DOLLAR LCURLY expr recover_antiquotation RCURLY { pin=1 }
-private recover_antiquotation ::= { recoverWhile=curly_recover }
-private string_part_recover ::= !(STR | IND_STR | DOLLAR | STRING_CLOSE | IND_STRING_CLOSE)
+VariableDeclaration ::= (IDENTIFIER|env_variable) '=' Expression
+Expression ::= (NumberLiteral|env_variable|SINGLE_QUOTED_STRING|DOUBLE_QUOTED_STRING)
 
-private paren_recover ::= !(RPAREN)
-private curly_recover ::= !RCURLY
-private brac_recover ::= !(RBRAC)
+RealNumberLiteral ::= REAL_NUMBER
+IntegerLiteral ::= INTEGER_NUMBER
+NumberLiteral ::= RealNumberLiteral | IntegerLiteral
+BooleanLiteral ::= "true" | "false"
+StringLiteral ::= SINGLE_QUOTED_STRING | DOUBLE_QUOTED_STRING
+ReferenceExpression::= ENV_IDENTIFIER
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+private eolStar ::= EOL*
+// Must have at least one EOL or SEMICOLON, but at most one SEMICOLON
+endOfExpression ::= SEMICOLON | EOL+ { implements = "org.elixir_lang.psi.Unquoted" }
+private endOfExpressionMaybe ::= endOfExpression?
+
+private expression ::= emptyParentheses |
+                       unmatchedExpression |
+                       unqualifiedNoParenthesesManyArgumentsCall
+                       { recoverWhile = expressionRecoverWhile }
+private expressionRecoverUntil ::= EOL | END
+private expressionRecoverWhile ::= !expressionRecoverUntil
