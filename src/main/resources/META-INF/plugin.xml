@@ -6,28 +6,32 @@
     <id>de.ithock.idea.fishlang</id>
     <name>Fishlang</name>
     <depends>com.intellij.modules.platform</depends>
-    <depends>com.intellij.java</depends>
     <vendor email="support@it-hock.de" url="https://it-hock.de">IT-Hock</vendor>
     <description><![CDATA[
         <p>Provides syntax highlighting for Fishlang files.</p>
         <p>For more information, see <a href="https://it-hock.de">https://it-hock.de</a></p>
     ]]></description>
-    <depends>com.intellij.modules.platform</depends>
     <extensions defaultExtensionNs="com.intellij">
-        <fileType name="Fish File" implementationClass="de.ithock.idea.fishlang.FishFileType" fieldName="INSTANCE"
-                  language="Fish" extensions="simple"/>
-        <!--
-          Only required for versions of the IntelliJ Platform prior to v2019.2.
-          Use 'com.intellij.fileTypeFactory' extension point INSTEAD of above 'com.intellij.fileType'.
-          See https://plugins.jetbrains.com/docs/intellij/language-and-filetype.html#register-the-filetype for details.
-    
-          <fileTypeFactory implementation="de.ithock.idea.fishlang.FishFileTypeFactory"/>
-        -->
-        <fileTypeFactory implementation="de.ithock.idea.fishlang.FishFileTypeFactory"/>
+        <fileType name="Fish Shell" implementationClass="de.ithock.idea.fishlang.FishFileType" fieldName="INSTANCE"
+                  language="Fish" extensions="fish"/>
         <lang.parserDefinition language="Fish" implementationClass="de.ithock.idea.fishlang.FishParserDefinition"/>
         <lang.syntaxHighlighterFactory language="Fish"
                                        implementationClass="de.ithock.idea.fishlang.FishSyntaxHighlighterFactory"/>
-        <colorSettingsPage implementation="de.ithock.idea.fishlang.FishColorSettingsPage"/>
+        <lang.commenter
+                language="Fish"
+                implementationClass="de.ithock.idea.fishlang.lang.FishCommenter"/>
+        <lang.foldingBuilder
+                language="Fish"
+                implementationClass="de.ithock.idea.fishlang.lang.FishFoldingBuilder"/>
+        <annotator
+                language="Fish"
+                implementationClass="de.ithock.idea.fishlang.lang.FishAnnotator"/>
+        <completion.contributor
+                language="Fish"
+                implementationClass="de.ithock.idea.fishlang.lang.FishCompletionContributor"/>
+        <colorSettingsPage
+                implementation="de.ithock.idea.fishlang.lang.FishColorSettingsPage"/>
+        <!--<colorSettingsPage implementation="de.ithock.idea.fishlang.FishColorSettingsPage"/>
         <annotator language="JAVA" implementationClass="de.ithock.idea.fishlang.FishAnnotator"/>
         <codeInsight.lineMarkerProvider language="JAVA"
                                         implementationClass="de.ithock.idea.fishlang.FishLineMarkerProvider"/>
@@ -49,6 +53,6 @@
         <langCodeStyleSettingsProvider implementation="de.ithock.idea.fishlang.FishLanguageCodeStyleSettingsProvider"/>
         <lang.commenter language="Fish" implementationClass="de.ithock.idea.fishlang.FishCommenter"/>
         <lang.documentationProvider language="Fish" implementationClass="de.ithock.idea.fishlang.FishDocumentationProvider"/>
-        <spellchecker.support language="Fish" implementationClass="de.ithock.idea.fishlang.FishSpellcheckingStrategy"/>
+        <spellchecker.support language="Fish" implementationClass="de.ithock.idea.fishlang.FishSpellcheckingStrategy"/>-->
     </extensions>
 </idea-plugin>

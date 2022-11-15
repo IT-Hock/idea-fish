@@ -7,9 +7,9 @@ import com.intellij.psi.tree.IElementType
 import de.ithock.idea.fishlang.FishLanguage
 import org.jetbrains.annotations.NonNls
 
-class FishTokenType(debugName: @NonNls String) : IElementType(
-        debugName,
-        FishLanguage.INSTANCE
+open class FishTokenType(debugName: @NonNls String) : IElementType(
+    debugName,
+    FishLanguage.INSTANCE
 ) {
     override fun toString(): String {
         return "FishTokenType." + super.toString()

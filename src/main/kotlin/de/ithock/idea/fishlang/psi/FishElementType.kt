@@ -7,7 +7,7 @@ import com.intellij.psi.tree.IElementType
 import de.ithock.idea.fishlang.FishLanguage
 import org.jetbrains.annotations.NonNls
 
-class FishElementType(debugName: @NonNls String) : IElementType(
-        debugName,
-        FishLanguage.INSTANCE
+open class FishElementType(debugName: @NonNls String) : IElementType(
+    debugName,
+    FishLanguage.INSTANCE
 )

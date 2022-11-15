@@ -2,115 +2,212 @@
  * Copyright (c) 2021 - 2022 IT-Hock. All rights reserved
  */
 {
-  parserClass="de.ithock.idea.fishlang.parser.FishParser"
-  parserUtilClass="de.ithock.idea.fishlang.psi.impl.FishParserUtil"
+    parserClass="de.ithock.idea.fishlang.parser.FishParser"
+    parserUtilClass="de.ithock.idea.fishlang.psi.impl.FishParserUtil"
+    extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
 
-  extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
+    psiClassPrefix="Fish"
+    psiImplClassSuffix="Impl"
+    psiPackage="de.ithock.idea.fishlang.psi"
+    psiImplPackage="de.ithock.idea.fishlang.psi.impl"
 
-  psiClassPrefix="Fish"
-  psiImplClassSuffix="Impl"
-  psiPackage="de.ithock.idea.fishlang.psi"
-  psiImplPackage="de.ithock.idea.fishlang.psi.impl"
+    elementTypeHolderClass="de.ithock.idea.fishlang.psi.FishElementTypes"
+    elementTypeClass="de.ithock.idea.fishlang.psi.FishElementType"
+    tokenTypeClass="de.ithock.idea.fishlang.psi.FishTokenType"
 
-  elementTypeHolderClass="de.ithock.idea.fishlang.psi.FishElementTypes"
-  elementTypeClass="de.ithock.idea.fishlang.psi.FishElementType"
-  tokenTypeClass="de.ithock.idea.fishlang.psi.FishTokenType"
+    extends ="de.ithock.idea.fishlang.psi.types.FishPsiElement"
 
-  name = "FishLexer"
+    tokens = [
+        LINE_COMMENT = "regexp:#[^\r?\n]*"
 
- tokens = [
-    LINE_COMMENT = "regexp:#(.*)"
-    REAL_NUMBER = "regexp:[0-9]+\.[0-9]+"
-    // Regexp integer blacklist dot
-    INTEGER_NUMBER = "regexp:[0-9]+"
+        SINGLE_QUOTED_STRING = "regexp:[^\\']'.*([^\\']|\\\\)'"
+        DOUBLE_QUOTED_STRING = "regexp:[^\\\"]\".*([^\\]|\\\\)\""
 
-    FUNCTION = "function"
-    END = "end"
-    ECHO = "echo"
-    ELSEIF = "else if"
-    IF = "if"
-    ELSE = "else"
-    FOR = "for"
-    IN = "in"
-    WHILE = "while"
-    SWITCH = "switch"
-    CASE = "case"
-    BREAK = "break"
-    CONTINUE = "continue"
-    RETURN = "return"
-    TRUE = "true"
-    FALSE = "false"
+        PATH = "regexp:[a-zA-Z0-9._+-]*(/[a-zA-Z0-9._+-]+)+/?"
+        HPATH = "regexp:\~(/[a-zA-Z0-9._+-]+)+/?"
+        SPATH = "regexp:<[a-zA-Z0-9._+-]+(/[a-zA-Z0-9._+-]+)*>"
+        URI = "regexp:[a-zA-Z][a-zA-Z0-9.+-]*:[a-zA-Z0-9%/?:@&=+$,\-_.!~*']+"
 
-    AND = "&&"
-    OR = "||"
-    NOT = "!"
-    EQ = "=="
-    NEQ = "!="
-    GT = ">"
-    LT = "<"
-    GTE = ">="
-    LTE = "<="
+        BUILTIN_FUNCTION = "regexp:__fish_([A-Za-z0-9_]+)"
 
-    SET = "set"
-    ABBR = "abbr"
+        HEX_NUMBER = "regexp:\\[xX][0-9a-fA-F]+"
+        BINARY_NUMBER = "regexp:\\[01]+"
+        UNICODE_CHAR = "regexp:\\[uU][0-9a-fA-F]+"
+        CHAR = "regexp:\\[cC][a-zA-Z]+"
+        ESCAPED_VALUE = "regexp:\\[\w~!@#$%\^&*()_+{}|:\"<>?`\-=\[\];',./]"
 
-    ENV_IDENTIFIER = "regexp:\$[a-zA-Z_]([a-zA-Z0-9_]|\[[0-9]+])*"
-    IDENTIFIER = "regexp:[a-zA-Z0-9_\-\\/]*"
-    SINGLE_QUOTED_STRING = "regexp:'[^']*'"
-    DOUBLE_QUOTED_STRING = "regexp:\"[^\"]*\""
-    //WHITE_SPACE = "regexp:\s+"
-    EOL = "\\n, \\r\\n"
-  ]
+        INT = "regexp:[0-9]+"
+        FLOAT = "regexp:(([1-9][0-9]*\.[0-9]*)|(0?\.[0-9]+))([Ee][+-]?[0-9]+)?"
+
+        WILDCARD = "*"
+        PIPE = "|"
+
+        TRUE = "true"
+        FALSE = "false"
+
+        BEGIN= "begin"
+        END = "end"
+
+        FUNCTION = "function"
+
+        IF = "if"
+        ELSE = "else"
+        WHILE = "while"
+        FOR = "for"
+        SWITCH = "switch"
+        CASE = "case"
+        DEFAULT = "default"
+        BREAK = "break"
+        CONTINUE = "continue"
+        RETURN = "return"
+
+        AND = "and"
+        NOT = "not"
+        OR = "or"
+        IN = "in"
+
+        ECHO = "echo"
+        SET = "set"
+        ABBR = "abbr"
+        SOURCE = "source"
+        EXIT = "exit"
+        CD = "cd"
+        LS = "ls"
+        MAN = "man"
+        MV = "mv"
+        CP = "cp"
+        OPEN = "open"
+        LESS = "less"
+        CAT = "cat"
+        RM = "rm"
+
+        COLON = ':'
+        SEMI = ';'
+        COMMA = ','
+        LPAREN = '('
+        RPAREN = ')'
+        LCURLY = '{'
+        RCURLY = '}'
+        LBRAC = '['
+        RBRAC = ']'
+
+        ARG = "regexp:--?[A-Za-z0-9_\-/\\,.]+"
+        ENV_VAR = "$"
+        //ENV_IDENTIFIER = "regexp:\$[a-zA-Z_][a-zA-Z0-9_]*"
+        IDENTIFIER = "regexp:[a-zA-Z\d@/_-]+"
+
+        NEWLINE = "regexp:\r?\n"
+        TB = "regexp:\t"
+        WHITE_SPACE = "regexp:[ ]+"
+    ]
 }
 
-FishShell ::= item_*
+fishFile ::= <<statements>>* <<eof>>
 
-private item_ ::= (statement_line_comment|VariableDeclaration|NumberLiteral|env_variable|statements|statement_execute|"regexp:\n") {
-    pin = 1
+private <statements> ::= !<<eof>> (
+        LINE_COMMENT |
+        <<switch_statement>>|<<if_statement>>|<<while_statement>>|<<for_statement>>|
+        <<function_definition>>|
+        <<builtin_functions>>|<<assignment>>|
+        <<code_block>>|<<statement>>|<<function_echo>>|<<command>>|
+        PATH|SPATH|HPATH|URI|
+        CONTINUE|BREAK|RETURN|TRUE|FALSE|AND|<<semicolon>>|<<END_OF_LINE>>)
+
+<END_OF_LINE> ::= NEWLINE|<<eof>>
+
+<env_identifier> ::= (ENV_VAR (IDENTIFIER|BUILTIN_FUNCTION) <<array_access_quanifier>>?) {
+    extends = "de.ithock.idea.fishlang.psi.types.FishEnvVariableElement"
 }
 
-statement_line_comment ::= LINE_COMMENT
-env_variable ::= ENV_IDENTIFIER
+<primitive_types> ::= (<<integer_type>>|<<float_type>>|<<hex_number_type>>|<<binary_number_type>>|<<unicode_char_type>>|<<char_type>>)
+<integer_type> ::= INT | INT <<integer_type>> { extends="de.ithock.idea.fishlang.psi.types.number.FishIntegerElement" }
+<float_type> ::= FLOAT { extends="de.ithock.idea.fishlang.psi.types.number.FishIntegerElement" }
+<hex_number_type> ::= HEX_NUMBER { extends="de.ithock.idea.fishlang.psi.types.number.FishHexNumberElement" }
+<binary_number_type> ::= BINARY_NUMBER { extends="de.ithock.idea.fishlang.psi.types.number.FishBinaryNumberElement" }
+<unicode_char_type> ::= UNICODE_CHAR { extends="de.ithock.idea.fishlang.psi.types.number.FishUnicodeCharElement" }
+<char_type> ::= CHAR { extends="de.ithock.idea.fishlang.psi.types.number.FishCharElement" }
 
-private statements ::= (statement_if|statement_for|statment_echo|function_definition|command)
+<assignment> ::= (<<env_identifier>>|IDENTIFIER) "=" (<<string_literal>>|<<integer_type>>|<<primitive_types>>|
+           TRUE|FALSE|IDENTIFIER|<<env_identifier>>)
 
-statement_for ::= FOR IDENTIFIER IN IDENTIFIER statements END
+<array_access_quanifier> ::= '['((<<integer_type>>'..'<<integer_type>>|<<integer_type>>+)|<<string_literal>>)+']'
+<array_access> ::= (<<env_identifier>> <<array_access_quanifier>>) | (IDENTIFIER <<array_access_quanifier>>)
 
-statement_if ::= IF command statements (statement_elseif)* (statement_else)? END
-statement_elseif ::= ELSEIF command statements
-statement_else ::= ELSE item_*
-condition ::= Expression (AND|OR|EQ|NEQ|LT|GT|LE|GE) Expression
+<command_identifier> ::= ("[" <<statements>> "]"|IDENTIFIER|<<env_identifier>>|<<array_access>>|<<builtin_functions>>)
+<command> ::= <<command_identifier>> <<arguments>>? <<END_OF_LINE>>
 
-function_definition ::= FUNCTION (command|IDENTIFIER) statements END
+<semicolon> ::= SEMI
 
-command_arg ::= (('-'|'--') (IDENTIFIER|(IDENTIFIER ' ' IDENTIFIER)|
-                SINGLE_QUOTED_STRING|DOUBLE_QUOTED_STRING | INTEGER_NUMBER | REAL_NUMBER | env_variable))|IDENTIFIER
+<inner_command> ::= '(' IDENTIFIER <<arguments>> ')'
+<arguments> ::= <<argument>> <<arguments>> | <<argument>>
+<argument> ::= <<integer_type>> | <<primitive_types>> |
+                <<inner_command>> |
+                <<env_identifier>> |
+                <<path_statement>> |
+                <<array_access>>
+                | (IDENTIFIER ARG)
+                | FALSE | TRUE | NOT | AND | PIPE | WILDCARD
+                | HEX_NUMBER | BINARY_NUMBER | UNICODE_CHAR | CHAR
+                | ARG | "/" | "=" | "&&" | "(" | ")" | "[" | "]" | ">" | "<" | <<semicolon>>
+                | (AND (<<command>>|<<builtin_functions>>)) |
+                <<command_escape>> | <<command_pipe>> | <<command_wildcard>> | <<string_literal>>
 
-set_command ::= SET (command_arg)
-statment_echo ::= ECHO ' '? (SINGLE_QUOTED_STRING|DOUBLE_QUOTED_STRING)
-command ::= set_command|((ABBR|IDENTIFIER) (command_arg|IDENTIFIER)*) endOfExpression
+<command_wildcard> ::= WILDCARD
+<command_pipe> ::= PIPE
+<command_escape> ::= ESCAPED_VALUE
 
-statement_execute ::= IDENTIFIER CRLF
+<string_literal> ::= SINGLE_QUOTED_STRING | DOUBLE_QUOTED_STRING | IDENTIFIER | <<env_identifier>> {
+ extends="de.ithock.idea.fishlang.psi.types.FishStringElement"
+}
 
-VariableDeclaration ::= (IDENTIFIER|env_variable) '=' Expression
-Expression ::= (NumberLiteral|env_variable|SINGLE_QUOTED_STRING|DOUBLE_QUOTED_STRING)
+//<echo_function> ::= ECHO (<<arguments>>|">"|"&")* <<END_OF_LINE>>
 
-RealNumberLiteral ::= REAL_NUMBER
-IntegerLiteral ::= INTEGER_NUMBER
-NumberLiteral ::= RealNumberLiteral | IntegerLiteral
-BooleanLiteral ::= "true" | "false"
-StringLiteral ::= SINGLE_QUOTED_STRING | DOUBLE_QUOTED_STRING
-ReferenceExpression::= ENV_IDENTIFIER
+<function_definition> ::= FUNCTION <<function_name>> <<statements>>* END <<END_OF_LINE>>
+<function_name> ::= <<command>>|IDENTIFIER
 
-////////////////////////////////////////////////////////////////////////////////////////////////
-private eolStar ::= EOL*
-// Must have at least one EOL or SEMICOLON, but at most one SEMICOLON
-endOfExpression ::= SEMICOLON | EOL+ { implements = "org.elixir_lang.psi.Unquoted" }
-private endOfExpressionMaybe ::= endOfExpression?
+<expression> ::= NOT? <<command>>|("[" <<command>> "]")|<<builtin_functions>>|
+            <<assignment>>|<<code_block>>|<<statement>>|
+            <<function_echo>>|<<command>>|<<function_definition>>|
+            <<if_statement>>|<<while_statement>>|<<for_statement>>|
+            <<switch_statement>> <<END_OF_LINE>>
 
-private expression ::= emptyParentheses |
-                       unmatchedExpression |
-                       unqualifiedNoParenthesesManyArgumentsCall
-                       { recoverWhile = expressionRecoverWhile }
-private expressionRecoverUntil ::= EOL | END
-private expressionRecoverWhile ::= !expressionRecoverUntil
+<statement> ::= <<if_statement>>
+
+<code_block> ::= BEGIN <<statements>>* END
+
+<if_statement> ::= IF <<expression>> <<statements>> (<<END_OF_LINE>>)? (ELSE IF <<statements>>+)* (ELSE <<statements>>+)? END <<END_OF_LINE>>
+
+<for_statement> ::= FOR (IDENTIFIER|<<env_identifier>>|<<command>>) IN (IDENTIFIER|<<env_identifier>>|<<command>>)
+                    <<statements>>* END
+
+<while_statement> ::= WHILE (NOT)? (TRUE|FALSE|<<command>>) <<END_OF_LINE>> <<statements>>* END
+
+<switch_statement> ::= SWITCH (<<env_identifier>>|<<command>>|IDENTIFIER) <<END_OF_LINE>> <<case_statement>>* END
+<case_statement> ::= CASE (<<string_literal>>|<<command>>) <<statements>>* |
+                     DEFAULT <<statements>>*
+
+<exit_function> ::= EXIT <<integer_type>>?
+
+<path_statement> ::= (HPATH|PATH|SPATH|URI) //(IDENTIFIER|"/"|"~"|".")*
+
+;{ extends("function_.*")=builtin_functions }
+<builtin_functions> ::= BUILTIN_FUNCTION|<<function_echo>>|<<exit_function>>|
+                        <<function_source>>|<<function_abbr>>|<<function_set>>|
+                        <<function_man>> | <<function_rm>> | <<function_mv>> |
+                        <<function_cp>> | <<function_less>> | <<function_cat>> |
+                        <<function_find>> | <<function_cd>> | <<function_which>> | <<function_touch>>
+
+private <function_source> ::= SOURCE <<path_statement>>|<<arguments>>
+private <function_abbr> ::= ABBR <<arguments>>
+private <function_set> ::= SET <<arguments>>
+private <function_man> ::= MAN <<arguments>>
+private <function_rm> ::= RM <<arguments>>
+private <function_mv> ::= MV <<arguments>>
+private <function_cp> ::= CP <<arguments>>
+private <function_less> ::= LESS <<arguments>>
+private <function_cat> ::= CAT <<arguments>>
+private <function_cd> ::= CD <<arguments>>
+private <function_which> ::= WHICH <<arguments>>
+private <function_touch> ::= TOUCH <<arguments>>
+private <function_echo> ::= ECHO <<arguments>>
+private <function_find> ::= FIND <<arguments>>

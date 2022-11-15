@@ -8,7 +8,7 @@ import javax.swing.Icon
 
 class FishFileType private constructor() : LanguageFileType(FishLanguage.INSTANCE) {
     override fun getName(): String {
-        return "Fish File"
+        return "Fish Shell"
     }
 
     override fun getDescription(): String {

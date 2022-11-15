@@ -25,57 +25,100 @@ import static de.ithock.idea.fishlang.psi.FishElementTypes.*;
 EOL=\R
 WHITE_SPACE=\s+
 
-LINE_COMMENT=#.*
-BLOCK_COMMENT=#[^#].*#
-REAL_NUMBER=[0-9]+\.[0-9]+
-INTEGER_NUMBER=[0-9]+
-ENV_IDENTIFIER=\$[a-zA-Z_]([a-zA-Z0-9_]|\[[0-9]+])*
-IDENTIFIER=[a-zA-Z_][a-zA-Z0-9_]*
-SINGLE_QUOTED_STRING='[^']*'
-DOUBLE_QUOTED_STRING=\"[^\"]*\"
-CRLF=\r?\n
+LINE_COMMENT=#[^\r?\n]*
+SINGLE_QUOTED_STRING=[^\']'.*([^\']|\\\\)'
+DOUBLE_QUOTED_STRING=[^\\\"]\".*([^\\]|\\\\)\"
+PATH=[a-zA-Z0-9._+-]*("/"[a-zA-Z0-9._+-]+)+"/"?
+HPATH=\~("/"[a-zA-Z0-9._+-]+)+"/"?
+SPATH=<[a-zA-Z0-9._+-]+("/"[a-zA-Z0-9._+-]+)*>
+URI=[a-zA-Z][a-zA-Z0-9.+-]*:[a-zA-Z0-9%/?:@&=+$,\-_.!~*']+
+BUILTIN_FUNCTION=__fish_([A-Za-z0-9_]+)
+HEX_NUMBER=\\[xX][0-9a-fA-F]+
+BINARY_NUMBER=\\[01]+
+UNICODE_CHAR=\\[uU][0-9a-fA-F]+
+CHAR=\\[cC][a-zA-Z]+
+ESCAPED_VALUE=\\[\w~!@#$%\^&*()_+{}|:\"<>?`\-=\[\];',./]
+INT=[0-9]+
+FLOAT=(([1-9][0-9]*\.[0-9]*)|(0?\.[0-9]+))([Ee][+-]?[0-9]+)?
+ARG=--?[A-Za-z0-9_\-/\\,.]+
+IDENTIFIER=[a-zA-Z\d@/_-]+
+NEWLINE=\r?\n
+TB=\t
+WHITE_SPACE=[ ]+
 
 %%
 <YYINITIAL> {
   {WHITE_SPACE}               { return WHITE_SPACE; }
 
-  "function"                  { return FUNCTION; }
+  "*"                         { return WILDCARD; }
+  "|"                         { return PIPE; }
+  "true"                      { return TRUE; }
+  "false"                     { return FALSE; }
+  "begin"                     { return BEGIN; }
   "end"                       { return END; }
-  "echo"                      { return ECHO; }
-  "else if"                   { return ELSEIF; }
+  "function"                  { return FUNCTION; }
   "if"                        { return IF; }
   "else"                      { return ELSE; }
-  "for"                       { return FOR; }
-  "in"                        { return IN; }
   "while"                     { return WHILE; }
+  "for"                       { return FOR; }
   "switch"                    { return SWITCH; }
   "case"                      { return CASE; }
+  "default"                   { return DEFAULT; }
   "break"                     { return BREAK; }
   "continue"                  { return CONTINUE; }
   "return"                    { return RETURN; }
-  "true"                      { return TRUE; }
-  "false"                     { return FALSE; }
-  "&&"                        { return AND; }
-  "||"                        { return OR; }
-  "!"                         { return NOT; }
-  "=="                        { return EQ; }
-  "!="                        { return NEQ; }
-  ">"                         { return GT; }
-  "<"                         { return LT; }
-  ">="                        { return GTE; }
-  "<="                        { return LTE; }
-  "LE"                        { return LE; }
-  "GE"                        { return GE; }
+  "and"                       { return AND; }
+  "not"                       { return NOT; }
+  "or"                        { return OR; }
+  "in"                        { return IN; }
+  "echo"                      { return ECHO; }
+  "set"                       { return SET; }
+  "abbr"                      { return ABBR; }
+  "source"                    { return SOURCE; }
+  "exit"                      { return EXIT; }
+  "cd"                        { return CD; }
+  "ls"                        { return LS; }
+  "man"                       { return MAN; }
+  "mv"                        { return MV; }
+  "cp"                        { return CP; }
+  "open"                      { return OPEN; }
+  "less"                      { return LESS; }
+  "cat"                       { return CAT; }
+  "rm"                        { return RM; }
+  ":"                         { return COLON; }
+  ";"                         { return SEMI; }
+  ","                         { return COMMA; }
+  "("                         { return LPAREN; }
+  ")"                         { return RPAREN; }
+  "{"                         { return LCURLY; }
+  "}"                         { return RCURLY; }
+  "["                         { return LBRAC; }
+  "]"                         { return RBRAC; }
+  "$"                         { return ENV_VAR; }
+  "WHICH"                     { return WHICH; }
+  "TOUCH"                     { return TOUCH; }
+  "FIND"                      { return FIND; }
 
   {LINE_COMMENT}              { return LINE_COMMENT; }
-  {BLOCK_COMMENT}             { return BLOCK_COMMENT; }
-  {REAL_NUMBER}               { return REAL_NUMBER; }
-  {INTEGER_NUMBER}            { return INTEGER_NUMBER; }
-  {ENV_IDENTIFIER}            { return ENV_IDENTIFIER; }
-  {IDENTIFIER}                { return IDENTIFIER; }
   {SINGLE_QUOTED_STRING}      { return SINGLE_QUOTED_STRING; }
   {DOUBLE_QUOTED_STRING}      { return DOUBLE_QUOTED_STRING; }
-  {CRLF}                      { return CRLF; }
+  {PATH}                      { return PATH; }
+  {HPATH}                     { return HPATH; }
+  {SPATH}                     { return SPATH; }
+  {URI}                       { return URI; }
+  {BUILTIN_FUNCTION}          { return BUILTIN_FUNCTION; }
+  {HEX_NUMBER}                { return HEX_NUMBER; }
+  {BINARY_NUMBER}             { return BINARY_NUMBER; }
+  {UNICODE_CHAR}              { return UNICODE_CHAR; }
+  {CHAR}                      { return CHAR; }
+  {ESCAPED_VALUE}             { return ESCAPED_VALUE; }
+  {INT}                       { return INT; }
+  {FLOAT}                     { return FLOAT; }
+  {ARG}                       { return ARG; }
+  {IDENTIFIER}                { return IDENTIFIER; }
+  {NEWLINE}                   { return NEWLINE; }
+  {TB}                        { return TB; }
+  {WHITE_SPACE}               { return WHITE_SPACE; }
 
 }
 

@@ -3,9 +3,10 @@
  */
 
 import org.jetbrains.changelog.markdownToHTML
+import org.jetbrains.intellij.dependency.PluginProjectDependency
 
 fun properties(key: String) = project.findProperty(key)
-        .toString()
+    .toString()
 
 plugins {
     // Java support
@@ -43,10 +44,9 @@ dependencies {
     testRuntimeOnly("org.junit.vintage:junit-vintage-engine")
 }
 
-// Set the JVM language level used to compile sources and generate files - Java 11 is required since 2020.3
 kotlin {
     jvmToolchain {
-        languageVersion.set(JavaLanguageVersion.of(11))
+        languageVersion.set(JavaLanguageVersion.of(properties("jvmTarget")))
     }
 }
 
@@ -56,11 +56,16 @@ intellij {
     version.set(properties("platformVersion"))
     type.set(properties("platformType"))
 
+    sandboxDir.set("$projectDir/sandbox")
+
+    downloadSources.set(false)
+    updateSinceUntilBuild.set(false)
+
     // Plugin Dependencies. Uses `platformPlugins` property from the gradle.properties file.
     plugins.set(
-            properties("platformPlugins").split(',')
-                    .map(String::trim)
-                    .filter(String::isNotEmpty)
+        properties("platformPlugins").split(',')
+            .map(String::trim)
+            .filter(String::isNotEmpty)
     )
 }
 
@@ -84,32 +89,32 @@ qodana {
     reportPath.set(projectDir.resolve("build/reports/inspections").canonicalPath)
     saveReport.set(true)
     showReport.set(
-            System.getenv("QODANA_SHOW_REPORT")
-                    ?.toBoolean() ?: false
+        System.getenv("QODANA_SHOW_REPORT")
+            ?.toBoolean() ?: false
     )
 }
 
-
-val tasksUsingDownloadedJbr = mutableListOf<Task>()
-
 tasks {
-    generateLexer.configure {
-        source.set("$projectDir/src/main/lang/_FishLexer.flex")
-        targetDir.set("$projectDir/src/main/gen/de/ithock/idea/fishlang")
-        targetClass.set("_FishLexer")
-        purgeOldFiles.set(false)
+    withType<org.jetbrains.intellij.tasks.RunIdeBase> {
+        autoReloadPlugins.set(true)
+        /*project.file("jbr/bin/java")
+                .takeIf { it.exists() }
+                ?.let { projectExecutable.set(it.toString()) } ?: tasksUsingDownloadedJbr.add(this)*/
+        jvmArgs("-Xmx2048m")
     }
 
-    withType<org.jetbrains.intellij.tasks.RunIdeBase> {
-        project.file("jbr/bin/java")
-                .takeIf { it.exists() }
-                ?.let { projectExecutable.set(it.toString()) } ?: tasksUsingDownloadedJbr.add(this)
-        jvmArgs("-Xmx2048m")
+    withType<org.jetbrains.intellij.tasks.PrepareSandboxTask> {
+        configureExternalPlugin(
+            PluginProjectDependency(
+                file("dev-plugins/Dracula/lib/dracula-theme-1.14.0.jar"),
+                "Dracula"
+            )
+        )
     }
 
     withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
         this.destinationDirectory.set(projectDir.resolve("build/classes/kotlin/main"))
-        kotlinOptions.jvmTarget = "11"
+        kotlinOptions.jvmTarget = properties("jvmTarget")
         kotlinOptions.freeCompilerArgs = listOf("-Xjvm-default=enable")
     }
 
@@ -119,17 +124,17 @@ tasks {
             val dir = project.buildDir.resolve("metadata")
             dir.mkdirs()
             dir.resolve("version.txt")
-                    .writeText(properties("pluginVersion"))
+                .writeText(properties("pluginVersion"))
             dir.resolve("zipfile.txt")
-                    .writeText(
-                            buildPlugin.get().archiveFile.get()
-                                    .toString()
-                    )
+                .writeText(
+                    buildPlugin.get().archiveFile.get()
+                        .toString()
+                )
             dir.resolve("latest_changelog.md")
-                    .writeText(
-                            changelog.getLatest()
-                                    .toText()
-                    )
+                .writeText(
+                    changelog.getLatest()
+                        .toText()
+                )
         }
     }
 
@@ -148,37 +153,37 @@ tasks {
 
         // Extract the <!-- Plugin description --> section from README.md and provide for the plugin's manifest
         pluginDescription.set(projectDir.resolve("README.md")
-                                      .readText()
-                                      .lines()
-                                      .run {
-                                          val start = "<!-- Plugin description -->"
-                                          val end = "<!-- Plugin description end -->"
+                                  .readText()
+                                  .lines()
+                                  .run {
+                                      val start = "<!-- Plugin description -->"
+                                      val end = "<!-- Plugin description end -->"
 
-                                          if (!containsAll(
-                                                          listOf(
-                                                                  start,
-                                                                  end
-                                                          )
-                                                  )
-                                          ) {
-                                              throw GradleException(
-                                                      "Plugin description section not found in README.md:\n$start ... $end"
+                                      if (!containsAll(
+                                              listOf(
+                                                  start,
+                                                  end
                                               )
-                                          }
-                                          subList(
-                                                  indexOf(start) + 1,
-                                                  indexOf(end)
+                                          )
+                                      ) {
+                                          throw GradleException(
+                                              "Plugin description section not found in README.md:\n$start ... $end"
                                           )
                                       }
-                                      .joinToString("\n")
-                                      .run { markdownToHTML(this) })
+                                      subList(
+                                          indexOf(start) + 1,
+                                          indexOf(end)
+                                      )
+                                  }
+                                  .joinToString("\n")
+                                  .run { markdownToHTML(this) })
 
         // Get the latest available change notes from the changelog file
         changeNotes.set(provider {
             changelog.run {
                 getOrNull(properties("pluginVersion")) ?: getLatest()
             }
-                    .toHTML()
+                .toHTML()
         })
     }
 
@@ -186,20 +191,20 @@ tasks {
     // Read more: https://github.com/JetBrains/intellij-ui-test-robot
     runIdeForUiTests {
         systemProperty(
-                "robot-server.port",
-                "8082"
+            "robot-server.port",
+            "8082"
         )
         systemProperty(
-                "ide.mac.message.dialogs.as.sheets",
-                "false"
+            "ide.mac.message.dialogs.as.sheets",
+            "false"
         )
         systemProperty(
-                "jb.privacy.policy.text",
-                "<!--999.999-->"
+            "jb.privacy.policy.text",
+            "<!--999.999-->"
         )
         systemProperty(
-                "jb.consents.confirmation.enabled",
-                "false"
+            "jb.consents.confirmation.enabled",
+            "false"
         )
     }
 
@@ -216,24 +221,12 @@ tasks {
         // Specify pre-release label to publish the plugin in a custom Release Channel automatically. Read more:
         // https://plugins.jetbrains.com/docs/intellij/deployment.html#specifying-a-release-channel
         channels.set(listOf(properties("pluginVersion").split('-')
-                                    .getOrElse(1) { "default" }
-                                    .split('.')
-                                    .first()))
+                                .getOrElse(1) { "default" }
+                                .split('.')
+                                .first()))
     }
     runPluginVerifier {
         failureLevel.set(org.jetbrains.intellij.tasks.RunPluginVerifierTask.FailureLevel.ALL)
-    }
-
-    compileJava {
-        dependsOn(
-                generateLexer
-        )
-    }
-
-    compileKotlin {
-        dependsOn(
-                generateLexer
-        )
     }
 
     test {
@@ -242,8 +235,8 @@ tasks {
         // on your local machine. For real world projects, use variants described in:
         // https://docs.gradle.org/current/userguide/build_environment.html
         systemProperty(
-                "idea.home.path",
-                properties("intellijCommunityPath")
+            "idea.home.path",
+            properties("intellijCommunityPath")
         )
         useJUnitPlatform()
     }

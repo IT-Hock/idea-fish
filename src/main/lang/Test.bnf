@@ -1,0 +1,126 @@
+/*
+ * Copyright (c) 2021 - 2022 IT-Hock. All rights reserved
+ */
+
+{
+  parserUtilClass="generated.TestParserUtil"
+    tokens = [
+        SINGLE_QUOTED_STRING = "regexp:[^\\']'.*([^\\']|\\\\)'"
+        DOUBLE_QUOTED_STRING = "regexp:[^\\\"]\".*([^\\]|\\\\)\""
+
+        ESCAPED_VALUE = "regexp:\\[\w~!@#$%^&*()_+{}|:\"<>?`\-=\[\];',./]"
+
+        DIGIT = "regexp:[0-9]+"
+        FLOAT = "regexp:[0-9]+.[0-9]+"
+
+        WILDCARD = "*"
+        PIPE = "|"
+
+        LINE_COMMENT = "regexp:([^\\])\s*?#.*"
+
+        TRUE = "true"
+        FALSE = "false"
+
+        BEGIN= "begin"
+        END = "end"
+
+        FUNCTION = "function"
+
+        IF = "if"
+        ELSE = "else"
+        WHILE = "while"
+        // for X in Y
+        FOR = "for"
+        IN = "in"
+        SWITCH = "switch"
+        CASE = "case"
+        DEFAULT = "default"
+        BREAK = "break"
+        CONTINUE = "continue"
+        RETURN = "return"
+
+        AND = "and"
+        NOT = "not"
+
+        ECHO = "echo"
+        SOURCE = "source"
+
+        EXIT = "exit"
+
+        BUILTIN_FUNCTION = "regexp:__fish_([A-Za-z0-9_]+)"
+
+        ARGUMENT = "regexp:--?[A-Za-z0-9_\-/\\,.]+"
+        ENV_IDENTIFIER = "regexp:\$[a-zA-Z_][a-zA-Z0-9_]*"
+        IDENTIFIER = "regexp:[a-zA-Z\d@/_-]*"
+
+        NEWLINE = "regexp:\r?\n"
+        TB = "regexp:\t"
+        WHITESPACE = "regexp:[ \t]+"
+    ]
+}
+
+root ::= <<statements>>* <<eof>>
+
+private <statements> ::= !<<eof>> (
+        <<switch_statement>>|<<if_statement>>|<<while_statement>>|<<for_statement>>|
+        <<function_definition>>|
+        <<builtin_functions>>|<<assignment>>|
+        <<code_block>>|<<statement>>|<<echo_function>>|<<command>>|
+        CONTINUE|BREAK|RETURN|<<eol>>)
+
+private <eol> ::= NEWLINE|<<eof>>
+
+<integer> ::= DIGIT | DIGIT <<integer>>
+<floating_point> ::= FLOAT
+
+<assignment> ::= (ENV_IDENTIFIER|IDENTIFIER) "=" (<<string>>|<<integer>>|<<floating_point>>|TRUE|FALSE|IDENTIFIER|ENV_IDENTIFIER)
+
+<array_access> ::= ENV_IDENTIFIER '['(<<integer>>'..'<<integer>>|<<integer>>+)']'
+
+<command> ::= ("[" <<statements>> "]"|IDENTIFIER) <<arguments>>? <<eol>>
+
+<inner_command> ::= '(' IDENTIFIER <<arguments>> ')'
+<arguments> ::= <<argument>> <<arguments>> | <<argument>>
+<argument> ::= <<integer>> | <<floating_point>> |
+                <<inner_command>> |
+                <<array_access>>
+                | (IDENTIFIER ARGUMENT)
+                | FALSE | TRUE | NOT | AND | PIPE | WILDCARD
+                | ARGUMENT | "/" | "=" | "&&" | "(" | ")" | "[" | "]" | ">" | "<" | ";"
+                | (AND (<<command>>|<<builtin_functions>>)) |
+                <<command_escape>> | <<command_pipe>> | <<command_wildcard>> | <<string>>
+
+<command_wildcard> ::= WILDCARD
+<command_pipe> ::= PIPE
+<command_escape> ::= ESCAPED_VALUE
+
+<string> ::= SINGLE_QUOTED_STRING | DOUBLE_QUOTED_STRING | IDENTIFIER | ENV_IDENTIFIER
+
+<echo_function> ::= ECHO (<<arguments>>|">"|"&")* <<eol>>
+
+<function_definition> ::= FUNCTION <<function_name>> <<statements>>* END <<eol>>
+<function_name> ::= <<command>>|IDENTIFIER
+
+<expression> ::= NOT? <<command>>|("[" <<command>> "]")|<<builtin_functions>>|<<assignment>>|<<code_block>>|<<statement>>|<<echo_function>>|<<command>>|<<function_definition>>|<<if_statement>>|<<while_statement>>|<<for_statement>>|<<switch_statement>> <<eol>>
+
+<statement> ::= <<if_statement>>
+
+<code_block> ::= BEGIN <<statements>>* END
+
+<if_statement> ::= IF <<expression>> <<statements>> (<<eol>>)? (ELSE IF <<statements>>+)* (ELSE <<statements>>+)? END <<eol>>
+
+<for_statement> ::= FOR (IDENTIFIER|ENV_IDENTIFIER|<<command>>) IN (IDENTIFIER|ENV_IDENTIFIER|<<command>>)
+                    <<statements>>* END
+
+<while_statement> ::= WHILE (NOT)? (TRUE|FALSE|<<command>>) <<eol>> <<statements>>* END
+
+<switch_statement> ::= SWITCH (ENV_IDENTIFIER|<<command>>|IDENTIFIER) <<eol>> <<case_statement>>* END
+<case_statement> ::= CASE (<<string>>|<<command>>) <<statements>>* |
+                     DEFAULT <<statements>>*
+
+<exit_function> ::= EXIT <<integer>>?
+
+<path> ::= (IDENTIFIER|"/"|"~"|".")*
+<source_function> ::= SOURCE <<path>> <<eol>>
+
+<builtin_functions> ::= BUILTIN_FUNCTION|(ECHO<<arguments>>)|<<exit_function>>|<<source_function>> <<eol>>

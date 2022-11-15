@@ -3,6 +3,11 @@
   -->
 
 <svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" viewBox="0 0 2048 2048">
-	<rect fill-opacity="0.6" x="0" y="0" width="2048" height="2048" rx="896" ry="896" fill="#40b6e0"></rect>
-	<g transform="scale(0.76)"><path fill-opacity="0.7" transform="translate(655.36, 2149.92) rotate(180) scale(-1, 1)" fill="#231f20" d="M233 1493h879v-170h-676v-400h613v-170h-613v-753h-203v1493z"></path></g>
+    <rect fill-opacity="0.6" x="0" y="0" width="2048" height="2048" rx="896" ry="896" fill="#40b6e0"/>
+    <g transform="translate(980, 925) scale(2)" fill-opacity="0.7">
+        <path d="M408 34L290-130c-6-8-20-15-30-15H16c-10 0-23 7-29 15l-33 45L40 34c3 4 5 10 5 15s-2 11-5 15l-86 119 33 45c6 8 19 15 29 15h244c10 0 24-7 30-15L408 64c3-4 5-10 5-15s-2-11-5-15zM206-90c12 0 21 9 21 21s-9 21-21 21-21-9-21-21 9-21 21-21z"
+              fill="#231f20"/>
+        <path d="M3 49c0 6-2 11-5 15l-119 164c-6 8-20 15-30 15h-146c-7 0-11-3-11-8 0-2 1-5 3-7l130-179-130-179-3-7c0-5 4-8 11-8h146c10 0 24 7 30 15L-2 34c3 4 5 10 5 15z"
+              fill="#231f20"/>
+    </g>
 </svg>
