@@ -1,8 +1,5 @@
 # Fish Language support for IntelliJ IDEA and other JetBrains IDEs
 
-> **Note**
->
-> Click the <kbd>Use this template</kbd> button and clone it in IntelliJ IDEA.
 <!-- Plugin description -->
 **Fish Language Support** is a plugin for IntelliJ IDEA and other JetBrains IDEs that adds support
 for the [Fish Shell](https://fishshell.com/) language. Currently only syntax highlighting and bare
