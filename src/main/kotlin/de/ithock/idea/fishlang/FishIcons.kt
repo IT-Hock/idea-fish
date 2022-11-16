@@ -9,7 +9,7 @@ import com.intellij.openapi.util.IconLoader
 object FishIcons {
     @JvmField
     val FILE = IconLoader.getIcon(
-            "/icons/icon.svg",
-            FishIcons::class.java
+        "/icons/icon.svg",
+        FishIcons::class.java
     )
 }
