@@ -149,7 +149,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh api repos/{owner}/{repo}/releases \
+          gh api repos/IT-Hock/idea-fish/releases \
             --jq '.[] | select(.draft == true) | .id' \
             | xargs -I '{}' gh api -X DELETE repos/{owner}/{repo}/releases/{}
 
