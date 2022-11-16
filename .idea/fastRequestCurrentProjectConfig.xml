@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="fastRequestCurrentProjectConfig">
-    <option name="domain" value="https://space.subtixx.de" />
-    <option name="enableEnv" value="Server" />
-    <option name="enableProject" value="Space" />
+    <option name="enableEnv" />
+    <option name="enableProject" />
   </component>
 </project>

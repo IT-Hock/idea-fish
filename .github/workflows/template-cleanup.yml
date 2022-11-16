@@ -13,7 +13,7 @@ jobs:
   # Run cleaning process only if workflow is triggered by the non-JetBrains/intellij-platform-plugin-template repository.
   template-cleanup:
     name: Template Cleanup
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     permissions:
       contents: write
     if: github.event.repository.name != 'intellij-platform-plugin-template'
