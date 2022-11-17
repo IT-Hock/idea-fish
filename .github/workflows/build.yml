@@ -151,7 +151,7 @@ jobs:
         run: |
           gh api repos/IT-Hock/idea-fish/releases \
             --jq '.[] | select(.draft == true) | .id' \
-            | xargs -I '{}' gh api -X DELETE repos/{owner}/{repo}/releases/{}
+            | xargs -I '{}' gh api -X DELETE repos/IT-Hock/idea-fish/releases/{}
 
       # Create new release draft - which is not publicly visible and requires manual acceptance
       - name: Create Release Draft
